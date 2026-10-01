@@ -49,7 +49,9 @@ pre{background:#0f172a;color:#e2e8f0;padding:14px;border-radius:8px;overflow-x:a
 .pn{display:flex;justify-content:space-between;max-width:1100px;margin:30px auto 0;padding:0 34px}
 .pn button{background:var(--s);color:#fff;border:0;border-radius:8px;padding:10px 18px;cursor:pointer;font:inherit}.pn button:hover{background:var(--p)}
 .ref a{color:var(--s);word-break:break-all}
-@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:none}.menu{display:block}main{margin:0;width:100%}.g2,.g3,@media(max-width:560px){.g2,.g3,@media print{.side,.menu,.pn{display:none}main{margin:0;width:100%}.page{display:block!important;page-break-after:always}}
+@media(max-width:900px){.side{transform:translateX(-100%)}.side.open{transform:none}.menu{display:block}main{margin:0;width:100%}.g2,.g3{grid-template-columns:1fr 1fr}.hero{padding:70px 22px 34px}.wrap,.pn{padding:0 16px}}
+@media(max-width:560px){.g2,.g3{grid-template-columns:1fr}}
+@media print{.side,.menu,.pn{display:none}main{margin:0;width:100%}.page{display:block!important;page-break-after:always}}
 
 /* ===== 手帳筆記本主題 ===== */
 :root{--bg:#f6f1e4;--card:#fffdf7;--line:#e7dfc9;--th:#efe7d0;--st:#faf6ea;--fg:#faf6ea;--fl:#e9f3f1;--flb:#b7d6d0;--p:#1f4e5a;--s:#2f7f8a;--ink:#26363c;--sh:#d9cfae;--hl:#fbe08a;--rule:#1f4e5a12;--sb:#1f4e5a;--ac:#e8735a}
@@ -204,6 +206,26 @@ table.rh td:first-child:before{content:none}
 tr.hi{border-color:#e0a526}
 tr.hi td:first-child{background:#fde047!important}
 }
+
+/* ===== 手機滿版貼齊（最終覆蓋）===== */
+html,body{width:100%;max-width:100%;margin:0;overflow-x:hidden}
+.fig,.fig img,.card,.hero,.flow,.g2,.g3,.tri,.tw,.page,.wrap{min-width:0;max-width:100%}
+.fig img{max-width:100%!important;height:auto}.fig{overflow:hidden}
+pre{max-width:100%;overflow-x:auto}
+@media(max-width:900px),(pointer:coarse){
+body{display:block!important}
+main{margin:0!important;padding:0!important;width:100%!important;max-width:100%!important}
+.page,.wrap{width:100%!important;margin:0!important}
+.wrap{padding:0 !important}
+.hero{margin:56px 0 18px!important;border-radius:0!important;border-inline:0!important;box-shadow:none!important;padding:26px 20px!important}
+.hero:before{left:20px!important}
+.wrap>.card,.wrap>.g2,.wrap>.tri,.wrap>.tip{margin-inline:0!important;width:100%}
+.card{border-radius:0!important;border-inline:0!important;box-shadow:none!important;padding:24px 18px!important}
+.tri .card{padding:34px 18px 24px!important}
+.card:hover{transform:none!important}
+.tip{margin-inline:0!important;border-radius:0!important;transform:none!important;border-right:0!important}
+.pn{padding-inline:16px!important;max-width:100%}
+}
 </style>
 </head>
 <body>
@@ -350,13 +372,15 @@ MLP: hidden_layer_sizes=(256,128,64), relu, adam, max_iter=500, early_stopping=T
 <script>
 const ids=[...document.querySelectorAll('.page')].map(p=>p.id),links=[...document.querySelectorAll('.side a')];
 const pg=document.body.appendChild(Object.assign(document.createElement('div'),{id:'pg'}));
-function show(id){if(!ids.includes(id))id=ids[0];document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id===id));links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+id));document.querySelector('.side').classList.remove('open');scrollTo({top:0});pg.style.width=((ids.indexOf(id)+1)/ids.length*100)+'%'}
+function show(id){if(!ids.includes(id))id=ids[0];document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id===id));links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+id));document.querySelector('.side').classList.remove('open');scrollTo({top:0});fit();pg.style.width=((ids.indexOf(id)+1)/ids.length*100)+'%'}
 function go(d){const i=ids.findIndex(x=>document.getElementById(x).classList.contains('on'));show(ids[Math.max(0,Math.min(ids.length-1,i+d))])}
 links.forEach(a=>a.addEventListener('click',e=>{e.preventDefault();show(a.getAttribute('href').slice(1))}));
 show(ids[0]);
 addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)});
 document.querySelectorAll('td.bar').forEach(td=>{const v=td.dataset.v;td.innerHTML='<i style="width:'+v+'%"></i><span>'+td.textContent+'</span>'});
 
+function fit(){setTimeout(()=>document.querySelectorAll('.page.on *').forEach(e=>{if(e.closest('pre'))return;const r=e.getBoundingClientRect();if(r.right>innerWidth+2){e.style.maxWidth='100%';e.style.minWidth='0'}}),80)}
+addEventListener('resize',fit);addEventListener('load',fit);
 function fs(){try{const d=document;d.fullscreenElement?d.exitFullscreen():d.documentElement.requestFullscreen()}catch(e){}}
 document.querySelectorAll('table').forEach(t=>{const hs=[...t.querySelectorAll('thead th')].map(x=>x.textContent.trim());const rows=[...t.querySelectorAll('tbody tr')];rows.forEach(r=>[...r.children].forEach((c,i)=>c.dataset.label=hs[i]||''));t.classList.toggle('rh',rows.every(r=>!/^[\d,.% ]+$/.test(r.children[0].textContent.trim())))});
 document.addEventListener('click',e=>{const i=e.target;if(i.matches&&i.matches('.fig img'))i.classList.toggle('zoom');else document.querySelectorAll('img.zoom').forEach(x=>x.classList.remove('zoom'))});
